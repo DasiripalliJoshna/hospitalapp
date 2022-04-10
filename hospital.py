@@ -1,5 +1,3 @@
-from os import abort
-
 from flask import Flask, render_template, request
 import sqlite3 as sql
 
@@ -86,20 +84,9 @@ def search_patient():
 @hospital.route("/delete",methods = ["GET","POST"])
 def delete_patient():
     if request.method == "POST":
-        getname = request.form["name"]
         getmobnumber = request.form["mobnumber"]
-        getage = request.form["age"]
-        getaddress = request.form["address"]
-        getdob = request.form["dob"]
-        getplace = request.form["place"]
-        getpincode = request.form["pincode"]
-        print(getname)
         print(getmobnumber)
-        print(getage)
-        print(getaddress)
-        print(getdob)
-        print(getplace)
-        print(getpincode)
+
 
         try:
             connection.execute("delete from patient where mobnumber="+getmobnumber)
@@ -121,11 +108,27 @@ def update_patient():
         place = request.form["place"]
         pincode = request.form["pincode"]
         try:
-            connection.execute("update patient set name='"+name+"',age="+age+",address='"+address+"',dob='"+dob+"',place='"+place+"',pincode="+pincode+" where mobnumber="+mobnumber)
+            query="update patient set name='"+name+"',age="+age+",address='"+address+"',dob='"+dob+"',place='"+place+"',pincode="+pincode+" where mobnumber="+mobnumber
+            print(query)
+            connection.execute(query)
             connection.commit()
             print("Updated Successfully")
+            return redirect("/viewall")
         except Exception as e:
             print(e)
+
+    return render_template("update.html")
+
+@hospital.route("/updatesearch",methods = ["GET","POST"])
+def update_search_patient():
+    if request.method == "POST":
+        getmobnumber=request.form["mobnumber"]
+        print(getmobnumber)
+        cursor = connection.cursor()
+        count = cursor.execute("select * from patient where mobnumber="+getmobnumber)
+        result = cursor.fetchall()
+        print(len(result))
+        return render_template("update.html", searchpatient=result)
 
     return render_template("update.html")
 
